@@ -1,0 +1,241 @@
+:root {
+  --board: #1e2f28;
+  --board-edge: #17251f;
+  --chalk: #f2efe3;
+  --chalk-dim: #c9c6b8;
+  --chalk-yellow: #e8c34d;
+  --chalk-red: #d9776a;
+  --frame: #6b4a30;
+  --frame-dark: #4d341f;
+  --line: rgba(242, 239, 227, 0.18);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--frame-dark);
+  color: var(--chalk);
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+.board {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 28px 20px 60px;
+}
+
+.board-panel {
+  background: var(--board);
+  border: 10px solid var(--frame);
+  border-radius: 6px;
+  box-shadow:
+    inset 0 0 60px rgba(0, 0, 0, 0.35),
+    0 12px 30px rgba(0, 0, 0, 0.4);
+  padding: 32px 24px 24px;
+}
+
+.title {
+  font-family: var(--font-chalk), cursive;
+  font-weight: 700;
+  font-size: clamp(2rem, 6vw, 2.8rem);
+  text-align: center;
+  margin: 0 0 4px;
+  letter-spacing: 0.5px;
+}
+
+.subtitle {
+  font-family: var(--font-chalk), cursive;
+  text-align: center;
+  color: var(--chalk-yellow);
+  font-size: 1.2rem;
+  margin: 0 0 28px;
+}
+
+.section-heading {
+  font-family: var(--font-chalk), cursive;
+  font-size: 1.5rem;
+  border-bottom: 2px dashed var(--line);
+  padding-bottom: 8px;
+  margin: 32px 0 16px;
+}
+
+.section-heading:first-of-type {
+  margin-top: 0;
+}
+
+.roster-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.roster-chip {
+  border: 1.5px dashed var(--chalk-dim);
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-size: 0.95rem;
+}
+
+.game-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.game-row {
+  display: grid;
+  grid-template-columns: 84px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.game-when {
+  font-size: 0.82rem;
+  color: var(--chalk-dim);
+  line-height: 1.3;
+}
+
+.game-matchup {
+  font-size: 1.05rem;
+}
+
+.game-matchup .fav {
+  color: var(--chalk-yellow);
+  font-weight: 600;
+}
+
+.game-spread {
+  font-size: 0.95rem;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.spread-pill {
+  display: inline-block;
+  border: 1.5px solid var(--chalk-red);
+  color: var(--chalk-red);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-weight: 600;
+}
+
+.spread-tbd {
+  color: var(--chalk-dim);
+  font-style: italic;
+}
+
+.footer-link {
+  display: block;
+  text-align: center;
+  margin-top: 36px;
+  font-size: 0.85rem;
+}
+
+.footer-link a {
+  color: var(--chalk-dim);
+  text-decoration: underline;
+}
+
+.footer-link a:hover {
+  color: var(--chalk);
+}
+
+.admin-lock {
+  max-width: 340px;
+  margin: 80px auto;
+  text-align: center;
+}
+
+.admin-lock input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--chalk);
+  margin-top: 12px;
+}
+
+.admin-lock button,
+.admin-row button {
+  background: var(--chalk-yellow);
+  color: #26210a;
+  border: none;
+  border-radius: 6px;
+  padding: 9px 16px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.admin-lock button:hover,
+.admin-row button:hover {
+  filter: brightness(1.08);
+}
+
+.admin-error {
+  color: var(--chalk-red);
+  margin-top: 10px;
+  font-size: 0.9rem;
+}
+
+.admin-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.admin-row select,
+.admin-row input[type="number"] {
+  padding: 7px 9px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--chalk);
+  font-size: 0.9rem;
+}
+
+.admin-row input[type="number"] {
+  width: 80px;
+}
+
+.saved-tag {
+  font-size: 0.8rem;
+  color: #8fdc9a;
+}
+
+@media (max-width: 480px) {
+  .game-row {
+    grid-template-columns: 1fr;
+    text-align: left;
+  }
+  .game-spread {
+    text-align: left;
+  }
+  .admin-row {
+    grid-template-columns: 1fr;
+  }
+}
