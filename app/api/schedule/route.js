@@ -13,10 +13,33 @@ export async function GET(request) {
 
 export async function POST(request) {
   const body = await request.json();
-  const { password, week, gameId } = body;
+  const { password, week, action } = body;
   if (password !== process.env.ADMIN_PASSWORD) {
     return NextResponse.json({ error: "Wrong passcode" }, { status: 401 });
   }
+
+  if (action === "addGame") {
+    const { away, home, day, time, network } = body.game || {};
+    if (!away || !home) {
+      return NextResponse.json({ error: "Away and home team are required" }, { status: 400 });
+    }
+    const games = (await getSchedule(week)) || [];
+    const id = `${away}-${home}-${Date.now()}`.toLowerCase().replace(/\s+/g, "-");
+    games.push({
+      id, away, home, day: day || "", time: time || "", network: network || "",
+      favorite: null, spread: null, awayScore: null, homeScore: null, final: false,
+    });
+    const saved = await setSchedule(week, games);
+    return NextResponse.json({ week, games: saved });
+  }
+
+  if (action === "removeGame") {
+    const games = (await getSchedule(week)) || [];
+    const saved = await setSchedule(week, games.filter((g) => g.id !== body.gameId));
+    return NextResponse.json({ week, games: saved });
+  }
+
+  const { gameId } = body;
   const games = (await getSchedule(week)) || [];
   const idx = games.findIndex((g) => g.id === gameId);
   if (idx === -1) {
