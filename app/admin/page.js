@@ -13,6 +13,8 @@ export default function AdminPage({ searchParams }) {
   const [games, setGames] = useState([]);
   const [savedId, setSavedId] = useState(null);
   const [newGame, setNewGame] = useState({ away: "", home: "", day: "", time: "", network: "" });
+  const [roster, setRosterState] = useState([]);
+  const [newPlayer, setNewPlayer] = useState("");
 
   useEffect(() => {
     const saved = typeof window !== "undefined" ? sessionStorage.getItem(PASSWORD_KEY) : null;
@@ -31,6 +33,8 @@ export default function AdminPage({ searchParams }) {
       setWeek(activeWeek);
       const scheduleRes = await fetch(`/api/schedule?week=${activeWeek}`).then((r) => r.json());
       setGames(scheduleRes.games || []);
+      const rosterRes = await fetch("/api/roster").then((r) => r.json());
+      setRosterState(rosterRes.roster || []);
     }
     init();
   }, [unlocked, week]);
@@ -117,6 +121,28 @@ export default function AdminPage({ searchParams }) {
     if (res.status === 401) return handleAuthFailure();
     const data = await res.json();
     setCurrentWeekState(data.week);
+  }
+
+  async function saveRoster(nextRoster) {
+    const res = await fetch("/api/roster", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password, roster: nextRoster }),
+    });
+    if (res.status === 401) return handleAuthFailure();
+    const data = await res.json();
+    setRosterState(data.roster);
+  }
+
+  function addPlayer() {
+    const name = newPlayer.trim();
+    if (!name || roster.includes(name)) return;
+    saveRoster([...roster, name]);
+    setNewPlayer("");
+  }
+
+  function removePlayer(name) {
+    saveRoster(roster.filter((n) => n !== name));
   }
 
   function updateLocal(id, patch) {
@@ -251,6 +277,32 @@ export default function AdminPage({ searchParams }) {
               </button>
             </div>
           ))}
+        </div>
+
+        <h2 className="section-heading">Manage Roster</h2>
+        <ul className="roster-grid">
+          {roster.map((name) => (
+            <li className="roster-chip" key={name} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              {name}
+              <button
+                onClick={() => removePlayer(name)}
+                style={{
+                  background: "transparent", color: "var(--chalk-red)", border: "none",
+                  padding: 0, fontSize: "0.9rem", cursor: "pointer",
+                }}
+              >
+                ✕
+              </button>
+            </li>
+          ))}
+        </ul>
+        <div className="admin-row" style={{ marginTop: 12 }}>
+          <input
+            placeholder="New player's name"
+            value={newPlayer}
+            onChange={(e) => setNewPlayer(e.target.value)}
+          />
+          <button onClick={addPlayer}>Add Player</button>
         </div>
 
         <p className="footer-link">
