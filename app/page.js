@@ -44,13 +44,7 @@ export default async function HomePage({ searchParams }) {
 
         <div className="week-switcher">
           {Array.from({ length: 18 }, (_, i) => i + 1).map((w) => (
-            
-              key={w}
-              href={`/?week=${w}`}
-              className={`week-pill ${w === week ? "active" : ""}`}
-            >
-              {w}
-            </a>
+            <a key={w} href={`/?week=${w}`} className={`week-pill ${w === week ? "active" : ""}`}>{w}</a>
           ))}
         </div>
 
