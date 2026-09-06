@@ -329,3 +329,52 @@ body {
 .standing-score {
   font-weight: 700;
 }
+/* --- Weekly highlights & bar chart --- */
+
+.standing-row {
+  grid-template-columns: 32px 1fr auto;
+}
+
+.standing-main {
+  min-width: 0;
+}
+
+.standing-bar-track {
+  margin-top: 6px;
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.standing-bar-fill {
+  height: 100%;
+  background: var(--chalk-yellow);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.highlights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.highlight-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.highlight-label {
+  font-size: 0.85rem;
+  color: var(--chalk-dim);
+  margin-bottom: 6px;
+}
+
+.highlight-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
