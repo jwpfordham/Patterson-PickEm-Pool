@@ -51,6 +51,29 @@ export default function AdminPage() {
     setTimeout(() => setSavedId(null), 1500);
   }
 
+  async function saveScore(game) {
+    const res = await fetch("/api/schedule", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        password,
+        week: WEEK,
+        gameId: game.id,
+        awayScore: game.awayScore,
+        homeScore: game.homeScore,
+      }),
+    });
+    if (res.status === 401) {
+      setUnlocked(false);
+      setError("That passcode was rejected. Try again.");
+      return;
+    }
+    const data = await res.json();
+    setGames(data.games);
+    setSavedId(`score-${game.id}`);
+    setTimeout(() => setSavedId(null), 1500);
+  }
+
   function updateLocal(id, patch) {
     setGames((prev) => prev.map((g) => (g.id === id ? { ...g, ...patch } : g)));
   }
@@ -122,6 +145,51 @@ export default function AdminPage() {
 
               <button onClick={() => saveGame(g)}>
                 {savedId === g.id ? "Saved!" : "Save"}
+              </button>
+            </div>
+          ))}
+        </div>
+
+        <h2 className="section-heading">Enter Final Scores</h2>
+        <p className="subtitle" style={{ fontSize: "0.95rem" }}>
+          Once both scores are in, the game is graded automatically against
+          the spread.
+        </p>
+
+        <div className="game-list">
+          {games.map((g) => (
+            <div className="admin-row" key={`score-${g.id}`}>
+              <div>
+                {g.away} at {g.home}
+                <div className="game-when">
+                  {g.final ? "Final" : "Not final yet"}
+                </div>
+              </div>
+
+              <input
+                type="number"
+                placeholder={`${g.away} score`}
+                value={g.awayScore ?? ""}
+                onChange={(e) =>
+                  updateLocal(g.id, {
+                    awayScore: e.target.value === "" ? null : Number(e.target.value),
+                  })
+                }
+              />
+
+              <input
+                type="number"
+                placeholder={`${g.home} score`}
+                value={g.homeScore ?? ""}
+                onChange={(e) =>
+                  updateLocal(g.id, {
+                    homeScore: e.target.value === "" ? null : Number(e.target.value),
+                  })
+                }
+              />
+
+              <button onClick={() => saveScore(g)}>
+                {savedId === `score-${g.id}` ? "Saved!" : "Save"}
               </button>
             </div>
           ))}
