@@ -1,4 +1,4 @@
-import { getRoster, setRoster, getSchedule, setSchedule } from "@/lib/kv";
+import { getRoster, setRoster, getOrSyncSchedule } from "@/lib/kv";
 import { WEEK_1_SEED } from "@/lib/seed-week1";
 
 const WEEK = 1;
@@ -12,10 +12,7 @@ async function loadData() {
       "Grand-Pops", "Mom-Lady",
     ]);
   }
-  let games = await getSchedule(WEEK);
-  if (!games) {
-    games = await setSchedule(WEEK, WEEK_1_SEED);
-  }
+  const games = await getOrSyncSchedule(WEEK, WEEK_1_SEED);
   return { roster, games };
 }
 
