@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 
-const WEEK = 1;
 const STORAGE_KEY = "pickem_player_name";
 
 function formatTime(iso) {
@@ -15,7 +14,8 @@ function formatTime(iso) {
   });
 }
 
-export default function PicksPage() {
+export default function PicksPage({ searchParams }) {
+  const [week, setWeek] = useState(Number(searchParams?.week) || null);
   const [roster, setRoster] = useState([]);
   const [games, setGames] = useState([]);
   const [picks, setPicks] = useState({});
@@ -23,22 +23,24 @@ export default function PicksPage() {
   const [pendingName, setPendingName] = useState("");
   const [loading, setLoading] = useState(true);
 
-  async function loadAll() {
-    const [rosterRes, scheduleRes, picksRes] = await Promise.all([
-      fetch("/api/roster").then((r) => r.json()),
-      fetch(`/api/schedule?week=${WEEK}`).then((r) => r.json()),
-      fetch(`/api/picks?week=${WEEK}`).then((r) => r.json()),
-    ]);
-    setRoster(rosterRes.roster || []);
-    setGames(scheduleRes.games || []);
-    setPicks(picksRes.picks || {});
-    setLoading(false);
-  }
-
   useEffect(() => {
-    loadAll();
     const saved = typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
     if (saved) setPlayer(saved);
+
+    async function init() {
+      const activeWeek = week || (await fetch("/api/current-week").then((r) => r.json())).week;
+      setWeek(activeWeek);
+      const [rosterRes, scheduleRes, picksRes] = await Promise.all([
+        fetch("/api/roster").then((r) => r.json()),
+        fetch(`/api/schedule?week=${activeWeek}`).then((r) => r.json()),
+        fetch(`/api/picks?week=${activeWeek}`).then((r) => r.json()),
+      ]);
+      setRoster(rosterRes.roster || []);
+      setGames(scheduleRes.games || []);
+      setPicks(picksRes.picks || {});
+      setLoading(false);
+    }
+    init();
   }, []);
 
   function choosePlayer() {
@@ -64,7 +66,7 @@ export default function PicksPage() {
     const res = await fetch("/api/picks", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ week: WEEK, player, gameId, team }),
+      body: JSON.stringify({ week, player, gameId, team }),
     });
     if (res.ok) {
       const data = await res.json();
@@ -115,7 +117,7 @@ export default function PicksPage() {
     <main className="board">
       <div className="board-panel">
         <h1 className="title" style={{ fontSize: "2rem" }}>
-          Make Your Picks
+          Make Your Picks — Week {week}
         </h1>
         <p className="subtitle" style={{ fontSize: "0.95rem" }}>
           Playing as {player} ·{" "}
@@ -123,6 +125,22 @@ export default function PicksPage() {
             not you?
           </a>
         </p>
+
+        <div className="week-switcher">
+          {Array.from({ length: 18 }, (_, i) => i + 1).map((w) => (
+            
+              key={w}
+              href={`/picks?week=${w}`}
+              className={`week-pill ${w === week ? "active" : ""}`}
+            >
+              {w}
+            </a>
+          ))}
+        </div>
+
+        {games.length === 0 && (
+          <p className="spread-tbd">No games set up yet for Week {week}.</p>
+        )}
 
         <div className="game-list">
           {games.map((g) => {
@@ -156,34 +174,38 @@ export default function PicksPage() {
           })}
         </div>
 
-        <h2 className="section-heading">Everyone&apos;s Picks</h2>
-        <div className="all-picks">
-          {roster.map((name) => {
-            const theirPicks = picks[name] || {};
-            const count = Object.keys(theirPicks).length;
-            return (
-              <details className="player-picks" key={name}>
-                <summary>
-                  {name} — {count} of {games.length} picked
-                </summary>
-                <ul>
-                  {games.map((g) => {
-                    const p = theirPicks[g.id];
-                    if (!p) return null;
-                    const teamName = p.team === "HOME" ? g.home : g.away;
-                    return (
-                      <li key={g.id}>
-                        {g.away} @ {g.home}: <strong>{teamName}</strong>{" "}
-                        <span className="pick-time">({formatTime(p.at)})</span>
-                      </li>
-                    );
-                  })}
-                  {count === 0 && <li className="spread-tbd">No picks yet</li>}
-                </ul>
-              </details>
-            );
-          })}
-        </div>
+        {games.length > 0 && (
+          <>
+            <h2 className="section-heading">Everyone&apos;s Picks</h2>
+            <div className="all-picks">
+              {roster.map((name) => {
+                const theirPicks = picks[name] || {};
+                const count = Object.keys(theirPicks).length;
+                return (
+                  <details className="player-picks" key={name}>
+                    <summary>
+                      {name} — {count} of {games.length} picked
+                    </summary>
+                    <ul>
+                      {games.map((g) => {
+                        const p = theirPicks[g.id];
+                        if (!p) return null;
+                        const teamName = p.team === "HOME" ? g.home : g.away;
+                        return (
+                          <li key={g.id}>
+                            {g.away} @ {g.home}: <strong>{teamName}</strong>{" "}
+                            <span className="pick-time">({formatTime(p.at)})</span>
+                          </li>
+                        );
+                      })}
+                      {count === 0 && <li className="spread-tbd">No picks yet</li>}
+                    </ul>
+                  </details>
+                );
+              })}
+            </div>
+          </>
+        )}
 
         <p className="footer-link">
           <a href="/">Back to the pool</a>
