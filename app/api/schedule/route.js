@@ -1,15 +1,13 @@
 import { NextResponse } from "next/server";
-import { getSchedule, setSchedule } from "@/lib/kv";
+import { getSchedule, setSchedule, getOrSyncSchedule } from "@/lib/kv";
 import { WEEK_1_SEED } from "@/lib/seed-week1";
 import { roundSpread } from "@/lib/rounding";
 
 export async function GET(request) {
   const week = Number(new URL(request.url).searchParams.get("week") || "1");
-  let games = await getSchedule(week);
-  if (!games) {
-    games = week === 1 ? WEEK_1_SEED : [];
-    games = await setSchedule(week, games);
-  }
+  const games = week === 1
+    ? await getOrSyncSchedule(week, WEEK_1_SEED)
+    : (await getSchedule(week)) || (await setSchedule(week, []));
   return NextResponse.json({ week, games });
 }
 
