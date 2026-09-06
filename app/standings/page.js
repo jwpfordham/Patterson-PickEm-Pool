@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getCoverWinner, computeStandings } from "@/lib/scoring";
+import { getCoverWinner, computeStandings, computeHighlights } from "@/lib/scoring";
 
 const WEEK = 1;
 
@@ -35,6 +35,7 @@ export default function StandingsPage() {
   }
 
   const { standings, gradedCount, totalGames } = computeStandings(games, picks, roster);
+  const highlights = computeHighlights(games, picks, roster);
 
   return (
     <main className="board">
@@ -50,7 +51,15 @@ export default function StandingsPage() {
           {standings.map((row, i) => (
             <div className="standing-row" key={row.name}>
               <div className="standing-rank">{i + 1}</div>
-              <div className="standing-name">{row.name}</div>
+              <div className="standing-main">
+                <div className="standing-name">{row.name}</div>
+                <div className="standing-bar-track">
+                  <div
+                    className="standing-bar-fill"
+                    style={{ width: gradedCount > 0 ? `${(row.correct / gradedCount) * 100}%` : "0%" }}
+                  />
+                </div>
+              </div>
               <div className="standing-score">
                 {row.correct} / {gradedCount}
               </div>
@@ -60,6 +69,47 @@ export default function StandingsPage() {
 
         {gradedCount > 0 && (
           <>
+            <h2 className="section-heading">Weekly Highlights</h2>
+            <div className="highlights-grid">
+              {highlights.topPickers.length > 0 && (
+                <div className="highlight-card">
+                  <div className="highlight-label">🔥 Top of the Week</div>
+                  <div className="highlight-value">{highlights.topPickers.join(", ")}</div>
+                </div>
+              )}
+              {highlights.bottomPickers.length > 0 && (
+                <div className="highlight-card">
+                  <div className="highlight-label">🪵 Wooden Spoon</div>
+                  <div className="highlight-value">{highlights.bottomPickers.join(", ")}</div>
+                </div>
+              )}
+              {highlights.biggestUpset && (
+                <div className="highlight-card">
+                  <div className="highlight-label">😱 Biggest Upset</div>
+                  <div className="highlight-value">
+                    {highlights.biggestUpset.game.away} @ {highlights.biggestUpset.game.home}
+                  </div>
+                </div>
+              )}
+              {highlights.mostAgreed && (
+                <div className="highlight-card">
+                  <div className="highlight-label">🤝 Most Agreed-On Pick</div>
+                  <div className="highlight-value">
+                    {highlights.mostAgreed.team === "HOME"
+                      ? highlights.mostAgreed.game.home
+                      : highlights.mostAgreed.game.away}{" "}
+                    ({highlights.mostAgreed.count}/{highlights.mostAgreed.total})
+                  </div>
+                </div>
+              )}
+              <div className="highlight-card">
+                <div className="highlight-label">⚖️ Chalk vs. Chaos</div>
+                <div className="highlight-value">
+                  {highlights.chalkCount} favorites covered, {highlights.upsetCount} upsets
+                </div>
+              </div>
+            </div>
+
             <h2 className="section-heading">Graded Games</h2>
             <div className="game-list">
               {games.filter((g) => getCoverWinner(g)).map((g) => {
