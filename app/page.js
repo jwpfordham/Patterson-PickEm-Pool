@@ -33,6 +33,12 @@ export default async function HomePage() {
         <h1 className="title">🏈 Family Pick&apos;em Pool</h1>
         <p className="subtitle">Week {WEEK} · 2026 Season</p>
 
+        <p style={{ textAlign: "center", marginBottom: 28 }}>
+          <a href="/picks" className="pick-btn" style={{ display: "inline-block", fontWeight: 700 }}>
+            Make Your Picks →
+          </a>
+        </p>
+
         <h2 className="section-heading">This Week&apos;s Games</h2>
         <div className="game-list">
           {games.map((g) => (
