@@ -34,8 +34,11 @@ export default async function HomePage() {
         <p className="subtitle">Week {WEEK} · 2026 Season</p>
 
         <p style={{ textAlign: "center", marginBottom: 28 }}>
-          <a href="/picks" className="pick-btn" style={{ display: "inline-block", fontWeight: 700 }}>
+          <a href="/picks" className="pick-btn" style={{ display: "inline-block", fontWeight: 700, marginRight: 10 }}>
             Make Your Picks →
+          </a>
+          <a href="/standings" className="pick-btn" style={{ display: "inline-block", fontWeight: 700 }}>
+            Standings →
           </a>
         </p>
 
