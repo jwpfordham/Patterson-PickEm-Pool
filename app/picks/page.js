@@ -128,13 +128,7 @@ export default function PicksPage({ searchParams }) {
 
         <div className="week-switcher">
           {Array.from({ length: 18 }, (_, i) => i + 1).map((w) => (
-            
-              key={w}
-              href={`/picks?week=${w}`}
-              className={`week-pill ${w === week ? "active" : ""}`}
-            >
-              {w}
-            </a>
+            <a key={w} href={`/picks?week=${w}`} className={`week-pill ${w === week ? "active" : ""}`}>{w}</a>
           ))}
         </div>
 
