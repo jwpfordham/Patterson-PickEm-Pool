@@ -3,25 +3,28 @@
 import { useEffect, useState } from "react";
 import { getCoverWinner, computeStandings, computeHighlights } from "@/lib/scoring";
 
-const WEEK = 1;
-
-export default function StandingsPage() {
+export default function StandingsPage({ searchParams }) {
+  const [week, setWeek] = useState(Number(searchParams?.week) || null);
   const [loading, setLoading] = useState(true);
   const [roster, setRoster] = useState([]);
   const [games, setGames] = useState([]);
   const [picks, setPicks] = useState({});
 
   useEffect(() => {
-    Promise.all([
-      fetch("/api/roster").then((r) => r.json()),
-      fetch(`/api/schedule?week=${WEEK}`).then((r) => r.json()),
-      fetch(`/api/picks?week=${WEEK}`).then((r) => r.json()),
-    ]).then(([rosterRes, scheduleRes, picksRes]) => {
+    async function init() {
+      const activeWeek = week || (await fetch("/api/current-week").then((r) => r.json())).week;
+      setWeek(activeWeek);
+      const [rosterRes, scheduleRes, picksRes] = await Promise.all([
+        fetch("/api/roster").then((r) => r.json()),
+        fetch(`/api/schedule?week=${activeWeek}`).then((r) => r.json()),
+        fetch(`/api/picks?week=${activeWeek}`).then((r) => r.json()),
+      ]);
       setRoster(rosterRes.roster || []);
       setGames(scheduleRes.games || []);
       setPicks(picksRes.picks || {});
       setLoading(false);
-    });
+    }
+    init();
   }, []);
 
   if (loading) {
@@ -41,11 +44,23 @@ export default function StandingsPage() {
     <main className="board">
       <div className="board-panel">
         <h1 className="title" style={{ fontSize: "2rem" }}>
-          Week {WEEK} Standings
+          Week {week} Standings
         </h1>
         <p className="subtitle" style={{ fontSize: "0.95rem" }}>
           {gradedCount} of {totalGames} games graded so far
         </p>
+
+        <div className="week-switcher">
+          {Array.from({ length: 18 }, (_, i) => i + 1).map((w) => (
+            
+              key={w}
+              href={`/standings?week=${w}`}
+              className={`week-pill ${w === week ? "active" : ""}`}
+            >
+              {w}
+            </a>
+          ))}
+        </div>
 
         <div className="game-list">
           {standings.map((row, i) => (
