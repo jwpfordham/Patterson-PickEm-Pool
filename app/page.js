@@ -1,9 +1,7 @@
-import { getRoster, setRoster, getOrSyncSchedule } from "@/lib/kv";
+import { getRoster, setRoster, getOrSyncSchedule, getSchedule, setSchedule, getCurrentWeek } from "@/lib/kv";
 import { WEEK_1_SEED } from "@/lib/seed-week1";
 
-const WEEK = 1;
-
-async function loadData() {
+async function loadData(week) {
   let roster = await getRoster();
   if (!roster) {
     roster = await setRoster([
@@ -12,7 +10,9 @@ async function loadData() {
       "Grand-Pops", "Mom-Lady",
     ]);
   }
-  const games = await getOrSyncSchedule(WEEK, WEEK_1_SEED);
+  const games = week === 1
+    ? await getOrSyncSchedule(week, WEEK_1_SEED)
+    : (await getSchedule(week)) || (await setSchedule(week, []));
   return { roster, games };
 }
 
@@ -24,25 +24,51 @@ function spreadDisplay(game) {
   return <span className="spread-pill">{favName} -{game.spread}</span>;
 }
 
-export default async function HomePage() {
-  const { roster, games } = await loadData();
+export default async function HomePage({ searchParams }) {
+  const currentWeek = await getCurrentWeek();
+  const week = Number(searchParams?.week) || currentWeek;
+  const { roster, games } = await loadData(week);
 
   return (
     <main className="board">
       <div className="board-panel">
         <h1 className="title">🏈 Family Pick&apos;em Pool</h1>
-        <p className="subtitle">Week {WEEK} · 2026 Season</p>
+        <p className="subtitle">
+          Week {week} · 2026 Season
+          {week !== currentWeek && (
+            <span style={{ color: "var(--chalk-dim)", fontSize: "0.75em" }}>
+              {" "}(current week is {currentWeek})
+            </span>
+          )}
+        </p>
+
+        <div className="week-switcher">
+          {Array.from({ length: 18 }, (_, i) => i + 1).map((w) => (
+            
+              key={w}
+              href={`/?week=${w}`}
+              className={`week-pill ${w === week ? "active" : ""}`}
+            >
+              {w}
+            </a>
+          ))}
+        </div>
 
         <p style={{ textAlign: "center", marginBottom: 28 }}>
-          <a href="/picks" className="pick-btn" style={{ display: "inline-block", fontWeight: 700, marginRight: 10 }}>
+          <a href={`/picks?week=${week}`} className="pick-btn" style={{ display: "inline-block", fontWeight: 700, marginRight: 10 }}>
             Make Your Picks →
           </a>
-          <a href="/standings" className="pick-btn" style={{ display: "inline-block", fontWeight: 700 }}>
+          <a href={`/standings?week=${week}`} className="pick-btn" style={{ display: "inline-block", fontWeight: 700 }}>
             Standings →
           </a>
         </p>
 
         <h2 className="section-heading">This Week&apos;s Games</h2>
+        {games.length === 0 && (
+          <p className="spread-tbd">
+            No games set up yet for Week {week} — check back once the commissioner adds them.
+          </p>
+        )}
         <div className="game-list">
           {games.map((g) => (
             <div className="game-row" key={g.id}>
