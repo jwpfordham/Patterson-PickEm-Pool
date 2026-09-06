@@ -157,6 +157,8 @@ body {
   color: var(--chalk);
 }
 
+/* --- Admin page --- */
+
 .admin-lock {
   max-width: 340px;
   margin: 80px auto;
@@ -198,8 +200,8 @@ body {
 }
 
 .admin-row {
-  display: grid;
-  grid-template-columns: 1fr auto auto auto;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
   padding: 12px 14px;
@@ -208,8 +210,12 @@ body {
   background: rgba(0, 0, 0, 0.12);
 }
 
+.admin-row > div:first-child {
+  flex: 1 1 180px;
+}
+
 .admin-row select,
-.admin-row input[type="number"] {
+.admin-row input {
   padding: 7px 9px;
   border-radius: 6px;
   border: 1px solid var(--line);
@@ -220,6 +226,38 @@ body {
 
 .admin-row input[type="number"] {
   width: 80px;
+}
+
+.admin-row input[type="text"],
+.admin-row input:not([type]) {
+  width: 130px;
+}
+
+.week-switcher {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.week-pill {
+  display: inline-block;
+  min-width: 30px;
+  text-align: center;
+  padding: 5px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  color: var(--chalk-dim);
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.week-pill.active {
+  background: var(--chalk-yellow);
+  color: #26210a;
+  border-color: var(--chalk-yellow);
+  font-weight: 700;
 }
 
 .saved-tag {
@@ -239,6 +277,7 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
 /* --- Picks page --- */
 
 .pick-row {
@@ -307,6 +346,7 @@ body {
   font-size: 0.9rem;
   line-height: 1.7;
 }
+
 /* --- Standings page --- */
 
 .standing-row {
@@ -329,6 +369,7 @@ body {
 .standing-score {
   font-weight: 700;
 }
+
 /* --- Weekly highlights & bar chart --- */
 
 .standing-row {
