@@ -12,7 +12,8 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
-  const { password, week, gameId, favorite, spreadRaw } = await request.json();
+  const body = await request.json();
+  const { password, week, gameId } = body;
   if (password !== process.env.ADMIN_PASSWORD) {
     return NextResponse.json({ error: "Wrong passcode" }, { status: 401 });
   }
@@ -21,10 +22,30 @@ export async function POST(request) {
   if (idx === -1) {
     return NextResponse.json({ error: "Game not found" }, { status: 404 });
   }
-  const rounded = spreadRaw === "" || spreadRaw === null || spreadRaw === undefined
-    ? null
-    : roundSpread(spreadRaw);
-  games[idx] = { ...games[idx], favorite: favorite || null, spread: rounded };
+
+  const updated = { ...games[idx] };
+
+  if ("favorite" in body) {
+    updated.favorite = body.favorite || null;
+  }
+  if ("spreadRaw" in body) {
+    updated.spread = body.spreadRaw === "" || body.spreadRaw == null
+      ? null
+      : roundSpread(body.spreadRaw);
+  }
+  if ("awayScore" in body) {
+    updated.awayScore = body.awayScore === "" || body.awayScore == null
+      ? null
+      : Number(body.awayScore);
+  }
+  if ("homeScore" in body) {
+    updated.homeScore = body.homeScore === "" || body.homeScore == null
+      ? null
+      : Number(body.homeScore);
+  }
+  updated.final = updated.awayScore != null && updated.homeScore != null;
+
+  games[idx] = updated;
   const saved = await setSchedule(week, games);
   return NextResponse.json({ week, games: saved });
 }
