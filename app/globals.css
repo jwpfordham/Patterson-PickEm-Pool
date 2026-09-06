@@ -239,3 +239,71 @@ body {
     grid-template-columns: 1fr;
   }
 }
+/* --- Picks page --- */
+
+.pick-row {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.pick-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.pick-btn {
+  padding: 12px 10px;
+  border-radius: 8px;
+  border: 1.5px solid var(--line);
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--chalk);
+  font-size: 0.95rem;
+  cursor: pointer;
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+.pick-btn:hover {
+  border-color: var(--chalk-dim);
+}
+
+.pick-btn.picked {
+  background: var(--chalk-yellow);
+  color: #26210a;
+  border-color: var(--chalk-yellow);
+  font-weight: 700;
+}
+
+.pick-time {
+  margin-top: 6px;
+  font-size: 0.78rem;
+  color: var(--chalk-dim);
+}
+
+.all-picks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.player-picks {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.player-picks summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.player-picks ul {
+  margin: 10px 0 2px;
+  padding-left: 18px;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
