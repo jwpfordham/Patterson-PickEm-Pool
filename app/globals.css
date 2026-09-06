@@ -307,3 +307,25 @@ body {
   font-size: 0.9rem;
   line-height: 1.7;
 }
+/* --- Standings page --- */
+
+.standing-row {
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.standing-rank {
+  font-family: var(--font-chalk), cursive;
+  color: var(--chalk-yellow);
+  font-size: 1.2rem;
+}
+
+.standing-score {
+  font-weight: 700;
+}
