@@ -1,11 +1,18 @@
 import { NextResponse } from "next/server";
-import { getSchedule, setSchedule, getOrSyncSchedule } from "@/lib/kv";
+import { getSchedule, setSchedule, getOrSyncSchedule, getScheduleReadOnly } from "@/lib/kv";
 import { SEASON_SEED } from "@/lib/season-seed";
 import { roundSpread } from "@/lib/rounding";
 
+// Pass ?readonly=1 to skip the write-back sync -- used by pages that load
+// many weeks at once (Season Standings, Graphs, Rivalry) so they don't do
+// an unnecessary database write for every single week on every page load.
 export async function GET(request) {
-  const week = Number(new URL(request.url).searchParams.get("week") || "1");
-  const games = await getOrSyncSchedule(week, SEASON_SEED[week] || []);
+  const url = new URL(request.url);
+  const week = Number(url.searchParams.get("week") || "1");
+  const readOnly = url.searchParams.get("readonly") === "1";
+  const games = readOnly
+    ? await getScheduleReadOnly(week, SEASON_SEED[week] || [])
+    : await getOrSyncSchedule(week, SEASON_SEED[week] || []);
   return NextResponse.json({ week, games });
 }
 
