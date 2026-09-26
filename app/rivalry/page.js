@@ -67,7 +67,7 @@ export default function RivalryPage() {
         </p>
 
         <h2 className="section-heading">Family Standings</h2>
-        <div className="vbar-chart" style={{ height: 175 }}>
+        <div className="vbar-chart" style={{ height: 155 }}>
           {families.map((f) => {
             const pct = f.made > 0 ? Math.round((f.correct / f.made) * 100) : 0;
             return (
@@ -77,23 +77,33 @@ export default function RivalryPage() {
                     style={{
                       width: 40,
                       height: `${(f.correct / maxCorrect) * 100}%`,
-                      display: "flex",
-                      flexDirection: "column-reverse",
+                      position: "relative",
                       borderRadius: "3px 3px 0 0",
                       overflow: "hidden",
                     }}
                   >
-                    {f.members.map((m, mi) => (
-                      m.correct > 0 && (
-                        <div
-                          key={m.name}
-                          style={{
-                            height: `${(m.correct / f.correct) * 100}%`,
-                            background: MEMBER_COLORS[mi % MEMBER_COLORS.length],
-                          }}
-                        />
-                      )
-                    ))}
+                    <div style={{ display: "flex", flexDirection: "column-reverse", height: "100%" }}>
+                      {f.members.map((m, mi) => (
+                        m.correct > 0 && (
+                          <div
+                            key={m.name}
+                            style={{
+                              height: `${(m.correct / f.correct) * 100}%`,
+                              background: MEMBER_COLORS[mi % MEMBER_COLORS.length],
+                            }}
+                          />
+                        )
+                      ))}
+                    </div>
+                    <div
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        pointerEvents: "none",
+                        backgroundImage:
+                          "repeating-linear-gradient(to top, rgba(23,37,31,0.5) 0, rgba(23,37,31,0.5) 1px, transparent 1px, transparent 10%)",
+                      }}
+                    />
                   </div>
                 </div>
                 <div className="vbar-label">
@@ -106,7 +116,20 @@ export default function RivalryPage() {
           })}
         </div>
 
-        <div className="highlight-card" style={{ marginTop: 4, marginBottom: 24 }}>
+        {families.map((f) => (
+          <div key={`legend-${f.name}`} style={{ marginBottom: 10 }}>
+            <div className="chart-legend" style={{ margin: "4px 0" }}>
+              {f.members.map((m, mi) => (
+                <span key={m.name}>
+                  <span className="chart-legend-swatch" style={{ background: MEMBER_COLORS[mi % MEMBER_COLORS.length] }} />
+                  {m.name}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+
+        <div className="highlight-card" style={{ marginTop: 14, marginBottom: 24 }}>
           <div className="highlight-label">🎤 Word on the Street</div>
           <div style={{ fontSize: "0.9rem", fontStyle: "italic", marginBottom: hasSpread ? 10 : 0 }}>
             {trumpFamilyPraise(leadingFamily.name)}
