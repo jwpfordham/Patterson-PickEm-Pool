@@ -6,13 +6,29 @@ import { FAMILIES } from "@/lib/families";
 
 const MEMBER_COLORS = ["#e8c34d", "#d9776a", "#7fb8a3", "#6f9bd1", "#b39ddb", "#f2efe3"];
 
-function trumpFamilyPraise(name) {
-  return `The ${name} family is WINNING, folks -- really winning, big league. Nobody expected numbers like this, nobody. Tremendous family, tremendous picks. Many people are saying it's the best family performance they've ever seen. Believe me.`;
-}
+const PRAISE_TEMPLATES = [
+  (name, s) => `The ${name} family is WINNING, folks -- ${s.correct} correct out of ${s.made}, a ${s.pct}% clip. Nobody expected numbers like this, nobody. Tremendous, absolutely tremendous. Believe me.`,
+  (name, s) => `Big week for the ${name} family -- leading by ${s.margin} over the next family, which is a lot, believe me, a lot. Something really special happening there.`,
+  (name, s) => `The ${name} family, ${s.correct} correct picks, folks. That's not luck. That's talent. A family that knows how to win, and they're winning bigly.`,
+  (name, s) => `Everybody's talking about the ${name} family right now. ${s.pct}% accuracy. Incredible number. We've never seen anything like it, believe me.`,
+  (name, s) => `The ${name} family is out in front, way out in front, by ${s.margin} points. Total domination. Nobody saw this coming except me, I saw it coming.`,
+  (name, s) => `Winning, winning, winning -- that's all the ${name} family knows how to do. ${s.correct} out of ${s.made}. Frankly, not even fair to the other families, but that's football, folks.`,
+  (name, s) => `A lot of people don't want to talk about the ${name} family's numbers, but I will. ${s.correct} correct, ${s.pct}% right. Look at those numbers. Nobody's ever seen numbers like that, nobody.`,
+  (name, s) => `The ${name} family is up by ${s.margin}, and folks, that margin is going to grow. It's going to grow a lot. Mark my words. Tremendous family. Tremendous.`,
+  (name, s) => `${name} family, ${s.correct} out of ${s.made} correct. Some people call it luck. I call it skill, real skill, the best skill. This family is playing a different game than everybody else, folks.`,
+];
 
-function trumpFamilyDenigrate(name) {
-  return `The ${name} family is having a rough one, not gonna lie. Sad! Total disaster over there, some of the worst picks anybody has ever seen from a family, and I've seen a lot of families. But hey, comebacks happen. We'll see. We'll see what happens.`;
-}
+const DENIGRATE_TEMPLATES = [
+  (name, s) => `The ${name} family is having a very tough season, not gonna lie. ${s.correct} correct out of ${s.made}, only ${s.pct}%. Sad! Total disaster, folks.`,
+  (name, s) => `Rough week again for the ${name} family -- now ${s.margin} points behind the leader. Not good. Not good at all. But everybody loves a comeback story.`,
+  (name, s) => `Nobody's talking about the ${name} family this week, and there's a reason for that, folks. ${s.pct}% just isn't gonna cut it. Sad!`,
+  (name, s) => `The ${name} family, ${s.correct} correct picks. We've seen better, much better. A lot of people are disappointed, a lot of people.`,
+  (name, s) => `Last place is a tough place to be, and the ${name} family knows all about that right now. Down by ${s.margin}. Very sad situation over there.`,
+  (name, s) => `The ${name} family really struggled this week. ${s.pct}% accuracy, folks, that's rough. But they'll bounce back. Or they won't. We'll see what happens.`,
+  (name, s) => `Some people are saying the ${name} family should just give up. I'm not saying that. I'm just saying ${s.correct} out of ${s.made} is not what winners do, folks. Not even close.`,
+  (name, s) => `${s.margin} points behind now for the ${name} family. That gap, folks, that gap is a disaster. A total, complete disaster. Sad to see, really sad.`,
+  (name, s) => `The ${name} family had a chance, everybody had a chance, and look what happened. ${s.pct}%. Not good, folks. Not good. But hey, there's always next week. Maybe.`,
+];
 
 export default function RivalryPage() {
   const [loading, setLoading] = useState(true);
@@ -55,6 +71,22 @@ export default function RivalryPage() {
   const leadingFamily = families[0];
   const trailingFamily = families[families.length - 1];
   const hasSpread = families.length > 1 && leadingFamily.correct !== trailingFamily.correct;
+  const margin = leadingFamily.correct - trailingFamily.correct;
+
+  const leadStats = {
+    correct: leadingFamily.correct,
+    made: leadingFamily.made,
+    pct: leadingFamily.made > 0 ? Math.round((leadingFamily.correct / leadingFamily.made) * 100) : 0,
+    margin,
+  };
+  const trailStats = {
+    correct: trailingFamily.correct,
+    made: trailingFamily.made,
+    pct: trailingFamily.made > 0 ? Math.round((trailingFamily.correct / trailingFamily.made) * 100) : 0,
+    margin,
+  };
+  const praiseText = PRAISE_TEMPLATES[currentWeek % PRAISE_TEMPLATES.length](leadingFamily.name, leadStats);
+  const denigrateText = DENIGRATE_TEMPLATES[currentWeek % DENIGRATE_TEMPLATES.length](trailingFamily.name, trailStats);
 
   return (
     <main className="board">
@@ -119,6 +151,7 @@ export default function RivalryPage() {
         {families.map((f) => (
           <div key={`legend-${f.name}`} style={{ marginBottom: 10 }}>
             <div className="chart-legend" style={{ margin: "4px 0" }}>
+              <strong style={{ color: "var(--chalk)" }}>{f.name}:</strong>
               {f.members.map((m, mi) => (
                 <span key={m.name}>
                   <span className="chart-legend-swatch" style={{ background: MEMBER_COLORS[mi % MEMBER_COLORS.length] }} />
@@ -132,11 +165,11 @@ export default function RivalryPage() {
         <div className="highlight-card" style={{ marginTop: 14, marginBottom: 24 }}>
           <div className="highlight-label">🎤 Word on the Street</div>
           <div style={{ fontSize: "0.9rem", fontStyle: "italic", marginBottom: hasSpread ? 10 : 0 }}>
-            {trumpFamilyPraise(leadingFamily.name)}
+            {praiseText}
           </div>
           {hasSpread && (
             <div style={{ fontSize: "0.9rem", fontStyle: "italic" }}>
-              {trumpFamilyDenigrate(trailingFamily.name)}
+              {denigrateText}
             </div>
           )}
         </div>
