@@ -46,13 +46,12 @@ export default async function HomePage({ searchParams }) {
           ))}
         </div>
 
+        <p style={{ textAlign: "center", marginBottom: 12 }}>
+          <a href={`/picks?week=${week}`} className="pick-btn" style={{ display: "inline-block", fontWeight: 700, marginRight: 10 }}>Make Your Picks →</a>
+          <a href={`/standings?week=${week}`} className="pick-btn" style={{ display: "inline-block", fontWeight: 700 }}>Week {week} Standings →</a>
+        </p>
         <p style={{ textAlign: "center", marginBottom: 28 }}>
-          <a href={`/picks?week=${week}`} className="pick-btn" style={{ display: "inline-block", fontWeight: 700, marginRight: 10 }}>
-            Make Your Picks →
-          </a>
-          <a href={`/standings?week=${week}`} className="pick-btn" style={{ display: "inline-block", fontWeight: 700 }}>
-            Standings →
-          </a>
+          <a href="/season" className="pick-btn" style={{ display: "inline-block", fontWeight: 700 }}>Season Standings →</a>
         </p>
 
         <h2 className="section-heading">This Week&apos;s Games</h2>
