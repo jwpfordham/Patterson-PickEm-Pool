@@ -61,9 +61,11 @@ export default function SeasonPage() {
 
   const topScore = standings[0]?.correct ?? 0;
   const bottomScore = standings[standings.length - 1]?.correct ?? 0;
-  const leaders = standings.filter((s) => s.correct === topScore).map((s) => s.name);
-  const losers = standings.filter((s) => s.correct === bottomScore).map((s) => s.name);
+  const leaders = standings.filter((s) => s.correct === topScore);
+  const losers = standings.filter((s) => s.correct === bottomScore);
   const hasSpread = totalGraded > 0 && topScore !== bottomScore;
+
+  const fmt = (row) => `${row.name} (${row.correct}/${row.made})`;
 
   return (
     <main className="board">
@@ -80,17 +82,21 @@ export default function SeasonPage() {
             <div className="highlight-card">
               <div className="highlight-label">🏆 The Leader</div>
               <div className="highlight-value" style={{ marginBottom: 6 }}>
-                {leaders.join(", ")} ({topScore} correct)
+                {leaders.map(fmt).join(", ")}
               </div>
-              <div style={{ fontSize: "0.9rem", fontStyle: "italic" }}>{trumpPraise(leaders)}</div>
+              <div style={{ fontSize: "0.9rem", fontStyle: "italic" }}>
+                {trumpPraise(leaders.map((s) => s.name))}
+              </div>
             </div>
             {hasSpread && (
               <div className="highlight-card">
                 <div className="highlight-label">😬 Rough Season So Far</div>
                 <div className="highlight-value" style={{ marginBottom: 6 }}>
-                  {losers.join(", ")} ({bottomScore} correct)
+                  {losers.map(fmt).join(", ")}
                 </div>
-                <div style={{ fontSize: "0.9rem", fontStyle: "italic" }}>{trumpDenigrate(losers)}</div>
+                <div style={{ fontSize: "0.9rem", fontStyle: "italic" }}>
+                  {trumpDenigrate(losers.map((s) => s.name))}
+                </div>
               </div>
             )}
           </div>
@@ -110,7 +116,7 @@ export default function SeasonPage() {
                   />
                 </div>
               </div>
-              <div className="standing-score">{row.correct}</div>
+              <div className="standing-score">{row.correct}/{row.made}</div>
             </div>
           ))}
         </div>
