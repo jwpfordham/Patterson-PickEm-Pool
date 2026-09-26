@@ -51,7 +51,8 @@ export default async function HomePage({ searchParams }) {
           <a href={`/standings?week=${week}`} className="pick-btn" style={{ display: "inline-block", fontWeight: 700 }}>Week {week} Standings →</a>
         </p>
         <p style={{ textAlign: "center", marginBottom: 28 }}>
-          <a href="/season" className="pick-btn" style={{ display: "inline-block", fontWeight: 700 }}>Season Standings →</a>
+          <a href="/season" className="pick-btn" style={{ display: "inline-block", fontWeight: 700, marginRight: 10 }}>Season Standings →</a>
+          <a href="/graphs" className="pick-btn" style={{ display: "inline-block", fontWeight: 700 }}>Graphs →</a>
         </p>
 
         <h2 className="section-heading">This Week&apos;s Games</h2>
@@ -71,25 +72,3 @@ export default async function HomePage({ searchParams }) {
               <div className="game-matchup">
                 {g.away} <span style={{ opacity: 0.6 }}>at</span>{" "}
                 <span className={g.favorite === "HOME" ? "fav" : ""}>{g.home}</span>
-              </div>
-              <div className="game-spread">{spreadDisplay(g)}</div>
-            </div>
-          ))}
-        </div>
-
-        <h2 className="section-heading">Who&apos;s Playing</h2>
-        <ul className="roster-grid">
-          {roster.map((name) => (
-            <li className="roster-chip" key={name}>
-              {name}
-            </li>
-          ))}
-        </ul>
-
-        <p className="footer-link">
-          <a href="/admin">Commissioner login</a>
-        </p>
-      </div>
-    </main>
-  );
-}
