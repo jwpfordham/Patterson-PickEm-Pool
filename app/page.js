@@ -72,3 +72,25 @@ export default async function HomePage({ searchParams }) {
               <div className="game-matchup">
                 {g.away} <span style={{ opacity: 0.6 }}>at</span>{" "}
                 <span className={g.favorite === "HOME" ? "fav" : ""}>{g.home}</span>
+              </div>
+              <div className="game-spread">{spreadDisplay(g)}</div>
+            </div>
+          ))}
+        </div>
+
+        <h2 className="section-heading">Who&apos;s Playing</h2>
+        <ul className="roster-grid">
+          {roster.map((name) => (
+            <li className="roster-chip" key={name}>
+              {name}
+            </li>
+          ))}
+        </ul>
+
+        <p className="footer-link">
+          <a href="/admin">Commissioner login</a>
+        </p>
+      </div>
+    </main>
+  );
+}
