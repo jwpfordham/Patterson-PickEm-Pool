@@ -116,8 +116,8 @@ export default function SeasonPage() {
   };
 
   const weekIdx = (currentWeek - 1) % PRAISE_TEMPLATES.length;
-  const praiseText = PRAISE_TEMPLATES[weekIdx](who(leaders), leadStats);
-  const denigrateText = DENIGRATE_TEMPLATES[weekIdx % DENIGRATE_TEMPLATES.length](who(losers), loseStats);
+  const praiseText = PRAISE_TEMPLATES[weekIdx](who(leaders.map((l) => l.name)), leadStats);
+  const denigrateText = DENIGRATE_TEMPLATES[weekIdx % DENIGRATE_TEMPLATES.length](who(losers.map((l) => l.name)), loseStats);
 
   return (
     <main className="board">
