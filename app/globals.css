@@ -414,7 +414,13 @@ body {
   color: var(--chalk-dim);
   margin-bottom: 6px;
 }
+a {
+  color: var(--chalk-dim);
+}
 
+a:hover {
+  color: var(--chalk);
+}
 .highlight-value {
   font-size: 1.05rem;
   font-weight: 700;
