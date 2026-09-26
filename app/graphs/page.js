@@ -131,7 +131,7 @@ export default function GraphsPage() {
                 <div className="vbar-track">
                   <div className="vbar" style={{ height: `${(t.count / maxTeamCount) * 100}%`, background: "#e8c34d", width: 22 }} />
                 </div>
-                <div className="vbar-label">{t.team.split(" ").pop()}<br />{t.count}</div>
+                <div className="vbar-label">{t.team.split(" ").pop()}<br />{t.count}/{t.opportunities}</div>
               </div>
             ))}
           </div>
