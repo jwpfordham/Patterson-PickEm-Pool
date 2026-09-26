@@ -52,7 +52,8 @@ export default async function HomePage({ searchParams }) {
         </p>
         <p style={{ textAlign: "center", marginBottom: 28 }}>
           <a href="/season" className="pick-btn" style={{ display: "inline-block", fontWeight: 700, marginRight: 10 }}>Season Standings →</a>
-          <a href="/graphs" className="pick-btn" style={{ display: "inline-block", fontWeight: 700 }}>Graphs →</a>
+          <a href="/graphs" className="pick-btn" style={{ display: "inline-block", fontWeight: 700, marginRight: 10 }}>Graphs →</a>
+          <a href="/rivalry" className="pick-btn" style={{ display: "inline-block", fontWeight: 700 }}>Rivalry →</a>
         </p>
 
         <h2 className="section-heading">This Week&apos;s Games</h2>
