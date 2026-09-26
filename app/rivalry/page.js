@@ -30,6 +30,18 @@ const DENIGRATE_TEMPLATES = [
   (name, s) => `The ${name} family had a chance, everybody had a chance, and look what happened. ${s.pct}%. Not good, folks. Not good. But hey, there's always next week. Maybe.`,
 ];
 
+const MIDDLE_TEMPLATES = [
+  (name, s) => `And then there's the ${name} family, right there in the middle, folks. ${s.correct} out of ${s.made}. Not winning, not losing. Just... there. We'll see what happens.`,
+  (name, s) => `The ${name} family, ${s.pct}% accuracy. Not bad, not tremendous. Middle of the pack. A lot of people are fine with middle of the pack. I don't know if I would be.`,
+  (name, s) => `Nobody's talking about the ${name} family, folks, because there's nothing to talk about. ${s.correct} correct. Solid. Steady. Boring, honestly. But steady.`,
+  (name, s) => `${s.gapBehindLeader} behind the leader, ${s.gapAheadOfLast} ahead of last place -- that's the ${name} family right now. Right in the middle. Very safe position. Very safe.`,
+  (name, s) => `The ${name} family is just kind of sitting there, folks, ${s.correct} out of ${s.made}. Not making headlines. Some would call that smart. I call it missing an opportunity, but that's just me.`,
+  (name, s) => `Middle of the pack for the ${name} family this week, ${s.pct}%. Could be worse, folks, could be a lot worse. Could also be a lot better. We'll see which way it goes.`,
+  (name, s) => `The ${name} family, playing it safe right in the middle. ${s.correct} correct picks. Not the story of the week, but not the disaster either. Fine, I guess. Fine.`,
+  (name, s) => `Right in between everybody else, that's the ${name} family. ${s.pct}% accuracy. Some people like being in the middle. Doesn't sound like winning to me, folks, but okay.`,
+  (name, s) => `The ${name} family continues to just exist in the middle, ${s.correct} out of ${s.made}. Not a headline. Not a disaster. Just... there. We'll keep an eye on it.`,
+];
+
 export default function RivalryPage() {
   const [loading, setLoading] = useState(true);
   const [weeksData, setWeeksData] = useState([]);
@@ -70,6 +82,7 @@ export default function RivalryPage() {
   const maxCorrect = Math.max(1, ...families.map((f) => f.correct));
   const leadingFamily = families[0];
   const trailingFamily = families[families.length - 1];
+  const middleFamily = families.length > 2 ? families[Math.floor(families.length / 2)] : null;
   const hasSpread = families.length > 1 && leadingFamily.correct !== trailingFamily.correct;
   const margin = leadingFamily.correct - trailingFamily.correct;
 
@@ -85,8 +98,20 @@ export default function RivalryPage() {
     pct: trailingFamily.made > 0 ? Math.round((trailingFamily.correct / trailingFamily.made) * 100) : 0,
     margin,
   };
+  const middleStats = middleFamily
+    ? {
+        correct: middleFamily.correct,
+        made: middleFamily.made,
+        pct: middleFamily.made > 0 ? Math.round((middleFamily.correct / middleFamily.made) * 100) : 0,
+        gapBehindLeader: leadingFamily.correct - middleFamily.correct,
+        gapAheadOfLast: middleFamily.correct - trailingFamily.correct,
+      }
+    : null;
   const praiseText = PRAISE_TEMPLATES[currentWeek % PRAISE_TEMPLATES.length](leadingFamily.name, leadStats);
   const denigrateText = DENIGRATE_TEMPLATES[currentWeek % DENIGRATE_TEMPLATES.length](trailingFamily.name, trailStats);
+  const middleText = middleFamily
+    ? MIDDLE_TEMPLATES[currentWeek % MIDDLE_TEMPLATES.length](middleFamily.name, middleStats)
+    : null;
 
   return (
     <main className="board">
@@ -164,9 +189,14 @@ export default function RivalryPage() {
 
         <div className="highlight-card" style={{ marginTop: 14, marginBottom: 24 }}>
           <div className="highlight-label">🎤 Word on the Street</div>
-          <div style={{ fontSize: "0.9rem", fontStyle: "italic", marginBottom: hasSpread ? 10 : 0 }}>
+          <div style={{ fontSize: "0.9rem", fontStyle: "italic", marginBottom: (middleText || hasSpread) ? 10 : 0 }}>
             {praiseText}
           </div>
+          {middleText && (
+            <div style={{ fontSize: "0.9rem", fontStyle: "italic", marginBottom: hasSpread ? 10 : 0 }}>
+              {middleText}
+            </div>
+          )}
           {hasSpread && (
             <div style={{ fontSize: "0.9rem", fontStyle: "italic" }}>
               {denigrateText}
