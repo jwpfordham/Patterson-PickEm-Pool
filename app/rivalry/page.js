@@ -56,7 +56,7 @@ export default function RivalryPage() {
       const results = await Promise.all(
         weekNums.map(async (week) => {
           const [scheduleRes, picksRes] = await Promise.all([
-            fetch(`/api/schedule?week=${week}`).then((r) => r.json()),
+            fetch(`/api/schedule?week=${week}&readonly=1`).then((r) => r.json()),
             fetch(`/api/picks?week=${week}`).then((r) => r.json()),
           ]);
           return { week, games: scheduleRes.games || [], picks: picksRes.picks || {} };
