@@ -3,17 +3,45 @@
 import { useEffect, useState } from "react";
 import { computeSeasonStandings, computeWeeklyPoolAccuracy } from "@/lib/scoring";
 
-function trumpPraise(names) {
-  const who = names.length > 1 ? names.join(" and ") : names[0];
-  const verb = names.length > 1 ? "are" : "is";
-  return `${who} ${verb} WINNING, folks -- and I mean really winning, the kind of winning people haven't seen before. Tremendous picks. The best picks. Many people are saying it's the greatest pick'em season anyone can remember, maybe ever. Believe me.`;
-}
+const PRAISE_TEMPLATES = [
+  (who, s) => `${who} ${s.verb} WINNING, folks -- ${s.correct} correct out of ${s.made}, a ${s.pct}% clip. Nobody expected numbers like this, nobody. Tremendous. Believe me.`,
+  (who, s) => `Big season for ${who} -- up by ${s.margin} over the person in last place, which is a lot, believe me, a lot. Something really special happening here.`,
+  (who, s) => `${who}, ${s.correct} correct picks, folks. That's not luck. That's talent. Real talent, the best kind.`,
+  (who, s) => `Everybody's talking about ${who} right now. ${s.pct}% accuracy. Incredible number. We've never seen anything like it, believe me.`,
+  (who, s) => `${who} ${s.verb} out in front, way out in front, by ${s.margin} points. Total domination. I saw it coming, honestly, I called it.`,
+  (who, s) => `Winning, winning, winning -- that's all ${who} ${s.verb2} been doing. ${s.correct} out of ${s.made}. Frankly, not even fair to everybody else.`,
+  (who, s) => `A lot of people don't want to talk about ${who}'s numbers, but I will. ${s.correct} correct, ${s.pct}% right. Nobody's ever seen numbers like that.`,
+  (who, s) => `${who} ${s.verb} up by ${s.margin}, and folks, that margin is going to grow. Mark my words. Tremendous. Absolutely tremendous.`,
+  (who, s) => `${who}, ${s.correct} out of ${s.made} correct. Some people call it luck. I call it skill, real skill, the best skill.`,
+  (who, s) => `Nobody saw this coming from ${who}, nobody. ${s.pct}% this season. That's not an accident, folks, that's greatness.`,
+  (who, s) => `${who} ${s.verb} leading the whole pool, folks, by ${s.margin}. The best picker anybody's ever seen, maybe ever. We'll see if anybody can catch up. I doubt it.`,
+  (who, s) => `Say what you want, but ${who} is putting up ${s.correct} correct picks. ${s.pct}%. That's a number people will remember.`,
+  (who, s) => `${who}, folks, ${who} ${s.verb} crushing it. ${s.correct} out of ${s.made}. Nobody else is even close, not even close.`,
+  (who, s) => `They said it couldn't be done, and ${who} ${s.verb} doing it anyway. ${s.pct}% accuracy. Tremendous stuff, really tremendous.`,
+  (who, s) => `${who} ${s.verb} up by ${s.margin} points on everybody. Big number. A lot of people are very impressed, very impressed indeed.`,
+  (who, s) => `${who}'s season, folks: ${s.correct} correct, ${s.pct}%. Some of the best picking anybody's ever seen in this pool, and I mean that.`,
+  (who, s) => `Nobody's catching ${who} at this rate. ${s.margin} ahead, ${s.pct}% on the season. Total, complete dominance. Believe me, folks, believe me.`,
+];
 
-function trumpDenigrate(names) {
-  const who = names.length > 1 ? names.join(" and ") : names[0];
-  const verb = names.length > 1 ? "are" : "is";
-  return `${who} ${verb} having a very tough season, not gonna lie. Sad! Total disaster, some of the worst picks I've ever seen, and I've seen a lot of picks. But look -- everybody loves a comeback story. We'll see what happens. We'll see.`;
-}
+const DENIGRATE_TEMPLATES = [
+  (who, s) => `${who} ${s.verb} having a very tough season, not gonna lie. ${s.correct} correct out of ${s.made}, only ${s.pct}%. Sad! Total disaster.`,
+  (who, s) => `Rough season for ${who} -- now ${s.margin} points behind the leader. Not good. Not good at all. But everybody loves a comeback story.`,
+  (who, s) => `Nobody's talking about ${who} this season, and there's a reason for that, folks. ${s.pct}% just isn't gonna cut it. Sad!`,
+  (who, s) => `${who}, ${s.correct} correct picks. We've seen better, much better. A lot of people are disappointed, a lot of people.`,
+  (who, s) => `Last place is a tough place to be, and ${who} ${s.verb} finding that out right now. Down by ${s.margin}. Very sad situation.`,
+  (who, s) => `${who} really ${s.verb2} struggled this season. ${s.pct}% accuracy, folks, that's rough. But they'll bounce back. Or they won't. We'll see.`,
+  (who, s) => `Some people are saying ${who} should just give up. I'm not saying that. I'm just saying ${s.correct} out of ${s.made} is not what winners do.`,
+  (who, s) => `${s.margin} points behind now for ${who}. That gap, folks, that gap is a disaster. A total, complete disaster.`,
+  (who, s) => `${who} had every chance, everybody had a chance, and look what happened. ${s.pct}%. Not good, folks. Not good.`,
+  (who, s) => `It's been a rough one for ${who}, folks. ${s.correct} correct all season. Some people just have a tough go of it, sad but true.`,
+  (who, s) => `${who} ${s.verb} in last place, ${s.margin} back. That's a big number to make up, folks, a very big number. We'll see what happens.`,
+  (who, s) => `Not a great season for ${who}. ${s.pct}% is not a number anybody's proud of, believe me. Nobody's proud of that number.`,
+  (who, s) => `${who}, ${s.correct} out of ${s.made}. Look, everybody has bad seasons. This one's been really bad though, really bad.`,
+  (who, s) => `The numbers don't lie, folks, and the numbers for ${who} are not good. ${s.pct}%. Sad situation, very sad.`,
+  (who, s) => `${who} ${s.verb} bringing up the rear this season, ${s.margin} behind. Not where anybody wants to be, not even close.`,
+  (who, s) => `A lot of empty seats at ${who}'s table this season, folks, if you know what I mean. ${s.correct} correct. Rough stuff.`,
+  (who, s) => `${who}'s season: ${s.correct} correct, ${s.pct}%. We've all had rough seasons. This is one of them. A rough one.`,
+];
 
 export default function SeasonPage() {
   const [loading, setLoading] = useState(true);
@@ -65,7 +93,31 @@ export default function SeasonPage() {
   const losers = standings.filter((s) => s.correct === bottomScore);
   const hasSpread = totalGraded > 0 && topScore !== bottomScore;
 
-  const fmt = (row) => `${row.name} (${row.correct}/${row.made})`;
+  const leaderMade = leaders.reduce((sum, s) => sum + s.made, 0) / (leaders.length || 1);
+  const loserMade = losers.reduce((sum, s) => sum + s.made, 0) / (losers.length || 1);
+  const margin = topScore - bottomScore;
+
+  const who = (names) => names.join(" and ");
+  const leadStats = {
+    correct: topScore,
+    made: Math.round(leaderMade),
+    pct: leaderMade > 0 ? Math.round((topScore / leaderMade) * 100) : 0,
+    margin,
+    verb: leaders.length > 1 ? "are" : "is",
+    verb2: leaders.length > 1 ? "have" : "has",
+  };
+  const loseStats = {
+    correct: bottomScore,
+    made: Math.round(loserMade),
+    pct: loserMade > 0 ? Math.round((bottomScore / loserMade) * 100) : 0,
+    margin,
+    verb: losers.length > 1 ? "are" : "is",
+    verb2: losers.length > 1 ? "have" : "has",
+  };
+
+  const weekIdx = (currentWeek - 1) % PRAISE_TEMPLATES.length;
+  const praiseText = PRAISE_TEMPLATES[weekIdx](who(leaders), leadStats);
+  const denigrateText = DENIGRATE_TEMPLATES[weekIdx % DENIGRATE_TEMPLATES.length](who(losers), loseStats);
 
   return (
     <main className="board">
@@ -82,21 +134,17 @@ export default function SeasonPage() {
             <div className="highlight-card">
               <div className="highlight-label">🏆 The Leader</div>
               <div className="highlight-value" style={{ marginBottom: 6 }}>
-                {leaders.map(fmt).join(", ")}
+                {leaders.map((l) => `${l.name} (${l.correct}/${l.made})`).join(", ")}
               </div>
-              <div style={{ fontSize: "0.9rem", fontStyle: "italic" }}>
-                {trumpPraise(leaders.map((s) => s.name))}
-              </div>
+              <div style={{ fontSize: "0.9rem", fontStyle: "italic" }}>{praiseText}</div>
             </div>
             {hasSpread && (
               <div className="highlight-card">
                 <div className="highlight-label">😬 Rough Season So Far</div>
                 <div className="highlight-value" style={{ marginBottom: 6 }}>
-                  {losers.map(fmt).join(", ")}
+                  {losers.map((l) => `${l.name} (${l.correct}/${l.made})`).join(", ")}
                 </div>
-                <div style={{ fontSize: "0.9rem", fontStyle: "italic" }}>
-                  {trumpDenigrate(losers.map((s) => s.name))}
-                </div>
+                <div style={{ fontSize: "0.9rem", fontStyle: "italic" }}>{denigrateText}</div>
               </div>
             )}
           </div>
@@ -123,7 +171,7 @@ export default function SeasonPage() {
 
         {weeklyAccuracy.some((w) => w.pct != null) && (
           <>
-            <h2 className="section-heading">How Chalky Was Each Week?</h2>
+            <h2 className="section-heading">How Predictable Was Each Week?</h2>
             <p className="subtitle" style={{ fontSize: "0.9rem", marginBottom: 16 }}>
               Percent of all picks made that week that turned out correct
             </p>
